@@ -34,7 +34,10 @@ ESTADOS_CLIMA = {
 }
 
 def search_location(search: str, limit: int = 10) -> list[dict]:
-    """
+    """resultados = search_location("Montevideo")
+
+# for i, lugar in enumerate(resultados, start=1):
+#     print(f"{i}. {lugar['etiqueta']} ({lugar['lat']}, {lugar['lon']})")
     Recibe un texto de búsqueda y devuelve una lista de diccionarios
     con las localizaciones coincidentes.
     """
