@@ -43,12 +43,27 @@ def search_location(search: str, limit: int = 10) -> list[dict]:
 
     res = requests.get(
         "https://geocoding-api.open-meteo.com/v1/search",
-        params={"name": search.strip(), "count": limit, "language": "es"},
+        params={"name": search.strip(), "count": 50, "language": "es"},
         timeout=5
     ).json()
 
+    resultsRaws = res.get("results", [])
+
+    # Filtrado para descartar calles, estaciones, hoteles, etc
+    # resultsFiltered = [
+    #    site for site in resultsRaws
+    #    if site.get("feature_code", "").startswith(("PPL", "PCLI"))
+    # ]
+
+    # Ordenar de mayor a menor la población
+    resultsOrdered = sorted(
+        resultsRaws,
+        key=lambda site: site.get("population", 0),
+        reverse=True
+    )
+
     coincidences = []
-    for site in res.get("results", []):
+    for site in resultsOrdered[:limit]:
         name = site.get("name", "")
         region = site.get("admin1", "")
         country = site.get("country", "")
@@ -64,4 +79,9 @@ def search_location(search: str, limit: int = 10) -> list[dict]:
         })
 
     return coincidences
-    
+
+
+# resultados = search_location("Montevideo")
+
+# for i, lugar in enumerate(resultados, start=1):
+#     print(f"{i}. {lugar['etiqueta']} ({lugar['lat']}, {lugar['lon']})")
