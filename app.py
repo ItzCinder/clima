@@ -46,7 +46,7 @@ def search_location(search: str, limit: int = 10) -> list[dict]:
 
     res = requests.get(
         "https://geocoding-api.open-meteo.com/v1/search",
-        params={"name": search.strip(), "count": 50, "language": "es"},
+        params={"name": search.strip(), "count": 10, "language": "es"},
         timeout=5
     ).json()
 
@@ -66,12 +66,24 @@ def search_location(search: str, limit: int = 10) -> list[dict]:
     )
 
     coincidences = []
+    locations_seen = set()
     for site in resultsOrdered[:limit]:
         name = site.get("name", "")
         region = site.get("admin1", "")
         country = site.get("country", "")
         label = ", ".join(filter(None, [name, region, country]))
 
+        location_key = (
+            name.lower(),
+            region.lower(),
+            country.lower(),
+            round(site["latitude"], 4),
+            round(site["longitude"], 4),
+        )
+        if location_key in locations_seen:
+            continue
+
+        locations_seen.add(location_key)
         coincidences.append({
             "etiqueta": label,
             "nombre": name,
